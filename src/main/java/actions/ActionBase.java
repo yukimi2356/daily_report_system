@@ -29,10 +29,10 @@ public abstract class ActionBase {
         this.response = servletResponse;
     }
 
-    public abstract void process() throws ServletException,IOException;
+    public abstract void process() throws ServletException, IOException;
 
     protected void invoke()
-            throws ServletException,IOException{
+            throws ServletException, IOException {
 
         Method commandMethod;
         try {
@@ -40,7 +40,7 @@ public abstract class ActionBase {
             commandMethod = this.getClass().getDeclaredMethod(command, new Class[0]);
             commandMethod.invoke(this, new Object[0]);
 
-        }catch(NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NullPointerException e) {
 
                         e.printStackTrace();
@@ -48,88 +48,90 @@ public abstract class ActionBase {
                 }
     }
 
-    protected void forward(ForwardConst target)throws ServletException,IOException{
-            String forward = String.format("/WEB-INF/views/%s.jsp", target.getValue());
-            RequestDispatcher dispatcher = request.getRequestDispatcher(forward);
-            dispatcher.forward(request, response);
+    protected void forward(ForwardConst target) throws ServletException, IOException {
+        String forward = String.format("/WEB-INF/views/%s.jsp", target.getValue());
+        RequestDispatcher dispatcher = request.getRequestDispatcher(forward);
+        dispatcher.forward(request, response);
     }
 
-    protected void redirect(ForwardConst action, ForwardConst command) throws ServletException,IOException{
-            String redirectUrl = request.getContextPath() + "/?action=" + action.getValue();
-            if(command != null) {
-                redirectUrl = redirectUrl + "&command=" + command.getValue();
-            }
+    protected void redirect(ForwardConst action, ForwardConst command)
+            throws ServletException, IOException {
 
-            response.sendRedirect(redirectUrl);
+        String redirectUrl = request.getContextPath() + "/?action=" + action.getValue();
+        if (command != null) {
+            redirectUrl = redirectUrl + "&command=" + command.getValue();
+        }
+
+        response.sendRedirect(redirectUrl);
     }
 
     protected boolean checkToken() throws ServletException, IOException {
-            String _token = getRequestParam(AttributeConst.TOKEN);
+        String _token = getRequestParam(AttributeConst.TOKEN);
 
-            if(_token == null || !(_token.equals(getTokenId()))) {
-                    forward(ForwardConst.FW_ERR_UNKNOWN);
+        if (_token == null || !(_token.equals(getTokenId()))) {
+            forward(ForwardConst.FW_ERR_UNKNOWN);
 
-                    return false;
-            }else {
-                    return true;
-            }
+            return false;
+        } else {
+            return true;
+        }
+
     }
 
     protected String getTokenId() {
-            return request.getSession().getId();
+        return request.getSession().getId();
     }
 
     protected int getPage() {
-            int page;
-            page = toNumber(request.getParameter(AttributeConst.PAGE.getValue()));
-            if(page == Integer.MIN_VALUE) {
-                    page = 1;
-            }
-
-            return page;
+        int page;
+        page = toNumber(request.getParameter(AttributeConst.PAGE.getValue()));
+        if (page == Integer.MIN_VALUE) {
+            page = 1;
+        }
+        return page;
     }
 
     protected int toNumber(String strNumber) {
-            int number = 0;
-            try {
-                    number = Integer.parseInt(strNumber);
-            }catch(Exception e) {
-                    number = Integer.MIN_VALUE;
-            }
-            return number;
+        int number = 0;
+        try {
+            number = Integer.parseInt(strNumber);
+        } catch (Exception e) {
+            number = Integer.MIN_VALUE;
+        }
+        return number;
     }
 
     protected LocalDate toLocalDate(String strDate) {
-            if(strDate == null || strDate.equals("")) {
-                    return LocalDate.now();
-            }
-            return LocalDate.parse(strDate);
+        if (strDate == null || strDate.equals("")) {
+            return LocalDate.now();
+        }
+        return LocalDate.parse(strDate);
     }
 
     protected String getRequestParam(AttributeConst key) {
-            return request.getParameter(key.getValue());
+        return request.getParameter(key.getValue());
     }
 
     protected <V> void putRequestScope(AttributeConst key, V value) {
-            request.setAttribute(key.getValue(), value);
+        request.setAttribute(key.getValue(), value);
     }
 
     @SuppressWarnings("unchecked")
     protected <R> R getSessionScope(AttributeConst key) {
-            return (R) request.getSession().getAttribute(key.getValue());
+        return (R) request.getSession().getAttribute(key.getValue());
     }
 
     protected <V> void putSessionScope(AttributeConst key, V value) {
-            request.getSession().setAttribute(key.getValue(), value);
+        request.getSession().setAttribute(key.getValue(), value);
     }
 
     protected void removeSessionScope(AttributeConst key) {
-            request.getSession().removeAttribute(key.getValue());
+        request.getSession().removeAttribute(key.getValue());
     }
 
     @SuppressWarnings("unchecked")
     protected <R> R getContextScope(PropertyConst key) {
-            return (R) context.getAttribute(key.getValue());
+        return (R) context.getAttribute(key.getValue());
     }
 
 }
