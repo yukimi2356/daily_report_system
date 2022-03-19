@@ -72,7 +72,7 @@ public class EmployeeConverter {
         return evs;
     }
 
-    public static void copyViewToMobel(Employee e, EmployeeView ev) {
+    public static void copyViewToModel(Employee e, EmployeeView ev) {
         e.setId(ev.getId());
         e.setCode(ev.getCode());
         e.setName(ev.getName());
