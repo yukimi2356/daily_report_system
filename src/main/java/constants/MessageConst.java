@@ -7,8 +7,8 @@ package constants;
 
 public enum MessageConst {
 
-    I_LOGIND("ログインしました"),
-    E_LOGIND("ログインに失敗しました。"),
+    I_LOGINED("ログインしました"),
+    E_LOGINED("ログインに失敗しました。"),
     I_LOGOUT("ログアウトしました。"),
 
     I_REGISTERED("登録が完了しました。"),
