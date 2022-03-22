@@ -42,27 +42,31 @@ public class EmployeeAction extends ActionBase {
      */
     public void index() throws ServletException, IOException {
 
-        //指定されたページ数の一覧画面に表示するデータを取得
-        int page = getPage();
-        List<EmployeeView> employees = service.getPerPage(page);
+        if (checkAdmin()) {
 
-        //全ての従業員データの件数を取得
-        long employeeCount = service.countAll();
+            //指定されたページ数の一覧画面に表示するデータを取得
+            int page = getPage();
+            List<EmployeeView> employees = service.getPerPage(page);
 
-        putRequestScope(AttributeConst.EMPLOYEES, employees); //取得した従業員データ
-        putRequestScope(AttributeConst.EMP_COUNT, employeeCount); //全ての従業員データの件数
-        putRequestScope(AttributeConst.PAGE, page); //ページ数
-        putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
+            //全ての従業員データの件数を取得
+            long employeeCount = service.countAll();
 
-        //セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
-        String flush = getSessionScope(AttributeConst.FLUSH);
-        if (flush != null) {
-            putRequestScope(AttributeConst.FLUSH, flush);
-            removeSessionScope(AttributeConst.FLUSH);
+            putRequestScope(AttributeConst.EMPLOYEES, employees); //取得した従業員データ
+            putRequestScope(AttributeConst.EMP_COUNT, employeeCount); //全ての従業員データの件数
+            putRequestScope(AttributeConst.PAGE, page); //ページ数
+            putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
+
+            //セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
+            String flush = getSessionScope(AttributeConst.FLUSH);
+            if (flush != null) {
+                putRequestScope(AttributeConst.FLUSH, flush);
+                removeSessionScope(AttributeConst.FLUSH);
+            }
+
+            //一覧画面を表示
+            forward(ForwardConst.FW_EMP_INDEX);
+
         }
-
-        //一覧画面を表示
-        forward(ForwardConst.FW_EMP_INDEX);
 
     }
 
@@ -71,11 +75,14 @@ public class EmployeeAction extends ActionBase {
      * @throws ServletException
      * @throws IOException
      */
-    public void entryNew() throws ServletException, IOException{
-        putRequestScope(AttributeConst.TOKEN, getTokenId());
-        putRequestScope(AttributeConst.EMPLOYEE, new EmployeeView());
+    public void entryNew() throws ServletException, IOException {
 
-        forward(ForwardConst.FW_EMP_NEW);
+        if (checkAdmin()) {
+            putRequestScope(AttributeConst.TOKEN, getTokenId());
+            putRequestScope(AttributeConst.EMPLOYEE, new EmployeeView());
+
+            forward(ForwardConst.FW_EMP_NEW);
+        }
     }
 
     /**
@@ -84,8 +91,9 @@ public class EmployeeAction extends ActionBase {
      * @throws IOException
      */
 
-    public void create()throws ServletException, IOException{
-        if(checkToken()) {
+    public void create() throws ServletException, IOException {
+        if (checkToken() && checkAdmin()) {
+
             EmployeeView ev = new EmployeeView(
 
                     null,
@@ -100,14 +108,14 @@ public class EmployeeAction extends ActionBase {
 
             List<String> errors = service.create(ev, pepper);
 
-            if(errors.size() > 0) {
+            if (errors.size() > 0) {
                 putRequestScope(AttributeConst.TOKEN, getTokenId());
                 putRequestScope(AttributeConst.EMPLOYEE, ev);
                 putRequestScope(AttributeConst.ERR, errors);
 
                 forward(ForwardConst.FW_EMP_NEW);
 
-            }else {
+            } else {
                 putSessionScope(AttributeConst.FLUSH, MessageConst.I_REGISTERED.getMessage());
 
                 redirect(ForwardConst.ACT_EMP, ForwardConst.CMD_INDEX);
@@ -121,17 +129,22 @@ public class EmployeeAction extends ActionBase {
      * @throws IOException
      */
 
-    public void show() throws ServletException, IOException{
-        EmployeeView ev = service.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
+    public void show() throws ServletException, IOException {
 
-        if(ev == null || ev.getDeleteFlag() == AttributeConst.DEL_FLAG_TRUE.getIntegerValue()) {
-            forward(ForwardConst.FW_ERR_UNKNOWN);
-            return;
+        if (checkAdmin()) {
+
+            EmployeeView ev = service.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
+
+            if (ev == null || ev.getDeleteFlag() == AttributeConst.DEL_FLAG_TRUE.getIntegerValue()) {
+                forward(ForwardConst.FW_ERR_UNKNOWN);
+                return;
+            }
+
+            putRequestScope(AttributeConst.EMPLOYEE, ev);
+
+            forward(ForwardConst.FW_EMP_SHOW);
+
         }
-
-        putRequestScope(AttributeConst.EMPLOYEE, ev);
-
-        forward(ForwardConst.FW_EMP_SHOW);
     }
 
     /**
@@ -139,19 +152,23 @@ public class EmployeeAction extends ActionBase {
      * @throws ServletException
      * @throws IOException
      */
-    public void edit() throws ServletException, IOException{
+    public void edit() throws ServletException, IOException {
 
-        EmployeeView ev = service.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
+        if (checkAdmin()) {
 
-        if(ev == null || ev.getDeleteFlag() == AttributeConst.DEL_FLAG_TRUE.getIntegerValue()) {
-            forward(ForwardConst.FW_ERR_UNKNOWN);
-            return;
+            EmployeeView ev = service.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
+
+            if (ev == null || ev.getDeleteFlag() == AttributeConst.DEL_FLAG_TRUE.getIntegerValue()) {
+                forward(ForwardConst.FW_ERR_UNKNOWN);
+                return;
+            }
+
+            putRequestScope(AttributeConst.TOKEN, getTokenId());
+            putRequestScope(AttributeConst.EMPLOYEE, ev);
+
+            forward(ForwardConst.FW_EMP_EDIT);
+
         }
-
-        putRequestScope(AttributeConst.TOKEN, getTokenId());
-        putRequestScope(AttributeConst.EMPLOYEE, ev);
-
-        forward(ForwardConst.FW_EMP_EDIT);
     }
 
     /**
@@ -160,9 +177,10 @@ public class EmployeeAction extends ActionBase {
      * @throws IOException
      */
 
-    public void update() throws ServletException, IOException{
+    public void update() throws ServletException, IOException {
 
-        if(checkToken()) {
+        if (checkToken() && checkAdmin()) {
+
             EmployeeView ev = new EmployeeView(
                     toNumber(getRequestParam(AttributeConst.EMP_ID)),
                     getRequestParam(AttributeConst.EMP_CODE),
@@ -177,14 +195,14 @@ public class EmployeeAction extends ActionBase {
 
             List<String> errors = service.update(ev, pepper);
 
-            if(errors.size() > 0) {
+            if (errors.size() > 0) {
                 putRequestScope(AttributeConst.TOKEN, getTokenId());
                 putRequestScope(AttributeConst.EMPLOYEE, ev);
                 putRequestScope(AttributeConst.ERR, errors);
 
                 forward(ForwardConst.FW_EMP_EDIT);
 
-            }else {
+            } else {
                 putSessionScope(AttributeConst.FLUSH, MessageConst.I_UPDATED.getMessage());
 
                 redirect(ForwardConst.ACT_EMP, ForwardConst.CMD_INDEX);
@@ -199,9 +217,10 @@ public class EmployeeAction extends ActionBase {
      * @throws IOException
      */
 
-    public void destroy()throws ServletException, IOException{
+    public void destroy() throws ServletException, IOException {
 
-        if(checkToken()) {
+        if (checkToken() && checkAdmin()) {
+
             service.destroy(toNumber(getRequestParam(AttributeConst.EMP_ID)));
 
             putSessionScope(AttributeConst.FLUSH, MessageConst.I_DELETED.getMessage());
@@ -210,5 +229,22 @@ public class EmployeeAction extends ActionBase {
         }
     }
 
+    /**
+     * ログイン中の従業員が管理者かどうかチェックし、管理者でなければエラー画面を表示
+     * true: 管理者 false: 管理者ではない
+     * @throws ServletException
+     * @throws IOException
+     */
+
+    private boolean checkAdmin() throws ServletException, IOException {
+        EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+
+        if (ev.getAdminFlag() != AttributeConst.ROLE_ADMIN.getIntegerValue()) {
+            forward(ForwardConst.FW_ERR_UNKNOWN);
+            return false;
+        } else {
+            return true;
+        }
+    }
 
 }
