@@ -31,8 +31,7 @@ public abstract class ActionBase {
 
     public abstract void process() throws ServletException, IOException;
 
-    protected void invoke()
-            throws ServletException, IOException {
+    protected void invoke() throws ServletException, IOException {
 
         Method commandMethod;
         try {
