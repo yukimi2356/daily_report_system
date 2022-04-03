@@ -16,6 +16,7 @@
             </div>
         </c:if>
         <h2>日報　一覧</h2>
+         <p><a href="<c:url value='?action=${actRep}&command=${commNew}' />">出勤時刻を登録する</a></p>
         <table id="report_list">
             <tbody>
                 <tr>
@@ -50,7 +51,7 @@
                 </c:choose>
             </c:forEach>
         </div>
-        <p><a href="<c:url value='?action=${actRep}&command=${commNew}' />">新規日報の登録</a></p>
+
 
     </c:param>
 </c:import>

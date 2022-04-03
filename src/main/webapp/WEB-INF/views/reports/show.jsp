@@ -6,6 +6,7 @@
 <c:set var="actRep" value="${ForwardConst.ACT_REP.getValue()}" />
 <c:set var="commIdx" value="${ForwardConst.CMD_INDEX.getValue()}" />
 <c:set var="commEdt" value="${ForwardConst.CMD_EDIT.getValue()}" />
+<c:set var="commLve" value="${ForwardConst.CMD_LEVEDIT.getValue()}" />
 
 <c:import url="/WEB-INF/views/layout/app.jsp">
     <c:param name="content">
@@ -37,12 +38,23 @@
                     <fmt:parseDate value="${report.updatedAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="updateDay" type="date" />
                     <td><fmt:formatDate value="${updateDay}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
                 </tr>
+                <tr>
+                    <th>出勤時刻</th>
+                    <td><c:out value="${report.attendedAt}" /></td>
+                </tr>
+                <tr>
+                    <th>退勤時刻</th>
+                    <td><c:out value="${report.leavedAt}" /></td>
+                </tr>
             </tbody>
         </table>
 
         <c:if test="${sessionScope.login_employee.id == report.employee.id}">
             <p>
                 <a href="<c:url value='?action=${actRep}&command=${commEdt}&id=${report.id}' />">この日報を編集する</a>
+            </p>
+            <p>
+                <a href="<c:url value='?action=${actRep}&command=${commLve}&id=${report.id}' />">退勤時刻を登録する</a>
             </p>
         </c:if>
 

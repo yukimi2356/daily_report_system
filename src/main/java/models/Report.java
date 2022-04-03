@@ -73,4 +73,10 @@ public class Report {
     @Column(name = JpaConst.REP_COL_UPDATED_AT, nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "attended_at", nullable = false) //add
+    private String attendedAt;
+
+    @Column(name = "leaved_at", nullable = true) //add
+    private String leavedAt;
+
 }

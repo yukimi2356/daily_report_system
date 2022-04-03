@@ -2,6 +2,8 @@ package actions;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -58,7 +60,16 @@ public class ReportAction extends ActionBase {
 
         ReportView rv = new ReportView();
         rv.setReportDate(LocalDate.now());
-        putRequestScope(AttributeConst.REPORT, rv);
+
+        rv.setTitle("出勤");
+        rv.setContent("出勤");
+
+        LocalDateTime ldt = LocalDateTime.now();
+        String now = ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        rv.setAttendedAt(now);
+
+        putRequestScope(AttributeConst.REPORT,rv);
+
 
         forward(ForwardConst.FW_REP_NEW);
     }
@@ -77,6 +88,8 @@ public class ReportAction extends ActionBase {
 
             EmployeeView ev = (EmployeeView)getSessionScope(AttributeConst.LOGIN_EMP);
 
+            String attendTime = getRequestParam(AttributeConst.REP_ATTENDED_AT);
+
             ReportView rv = new ReportView(
                     null,
                     ev,
@@ -84,6 +97,8 @@ public class ReportAction extends ActionBase {
                     getRequestParam(AttributeConst.REP_TITLE),
                     getRequestParam(AttributeConst.REP_CONTENT),
                     null,
+                    null,
+                    attendTime,
                     null);
 
             List<String> errors = service.create(rv);
@@ -128,12 +143,65 @@ public class ReportAction extends ActionBase {
             forward(ForwardConst.FW_ERR_UNKNOWN);
         }else {
             putRequestScope(AttributeConst.TOKEN, getTokenId());
+
             putRequestScope(AttributeConst.REPORT, rv);
 
             forward(ForwardConst.FW_REP_EDIT);
         }
     }
 
+    public void update() throws ServletException, IOException {
+
+        if (checkToken()) {
+
+            ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+            rv.setReportDate(toLocalDate(getRequestParam(AttributeConst.REP_DATE)));
+            rv.setTitle(getRequestParam(AttributeConst.REP_TITLE));
+            rv.setContent(getRequestParam(AttributeConst.REP_CONTENT));
+            rv.setAttendedAt(getRequestParam(AttributeConst.REP_ATTENDED_AT));
+            rv.setLeavedAt(getRequestParam(AttributeConst.REP_LEAVED_AT));
+
+
+            List<String> errors = service.update(rv);
+
+            if (errors.size() > 0) {
+
+                putRequestScope(AttributeConst.TOKEN, getTokenId());
+                putRequestScope(AttributeConst.REPORT, rv);
+                putRequestScope(AttributeConst.ERR, errors);
+
+                forward(ForwardConst.FW_REP_EDIT);
+            } else {
+
+                putSessionScope(AttributeConst.FLUSH, MessageConst.I_UPDATED.getMessage());
+
+                redirect(ForwardConst.ACT_REP, ForwardConst.CMD_INDEX);
+
+            }
+        }
+    }
+
+    public void leaveEdit() throws ServletException, IOException {
+
+        ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+        EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+
+        if(rv == null || ev.getId() != rv.getEmployee().getId()) {
+            forward(ForwardConst.FW_ERR_UNKNOWN);
+        }else {
+            putRequestScope(AttributeConst.TOKEN, getTokenId());
+
+            LocalDateTime ldt = LocalDateTime.now();
+            String now = ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            rv.setLeavedAt(now);
+
+            putRequestScope(AttributeConst.REPORT, rv);
+
+            forward(ForwardConst.FW_REP_EDIT);
+        }
+    }
 
 
 }

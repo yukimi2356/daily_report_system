@@ -19,7 +19,9 @@ public class ReportConverter {
                 rv.getTitle(),
                 rv.getContent(),
                 rv.getCreatedAt(),
-                rv.getUpdatedAt());
+                rv.getUpdatedAt(),
+                rv.getAttendedAt(), //add
+                rv.getLeavedAt()); //add
     }
 
     public static ReportView toView(Report r) {
@@ -34,7 +36,9 @@ public class ReportConverter {
                 r.getTitle(),
                 r.getContent(),
                 r.getCreatedAt(),
-                r.getUpdatedAt());
+                r.getUpdatedAt(),
+                r.getAttendedAt(), //add
+                r.getLeavedAt()); //add
     }
 
     public static List<ReportView> toViewList(List<Report> list){
@@ -55,5 +59,7 @@ public class ReportConverter {
         r.setContent(rv.getContent());
         r.setCreatedAt(rv.getCreatedAt());
         r.setUpdatedAt(rv.getUpdatedAt());
+        r.setAttendedAt(rv.getAttendedAt()); //add
+        r.setLeavedAt(rv.getLeavedAt()); //add
     }
 }

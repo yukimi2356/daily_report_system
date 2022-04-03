@@ -5,6 +5,8 @@
 <c:set var="action" value="${ForwardConst.ACT_REP.getValue()}" />
 <c:set var="commIdx" value="${ForwardConst.CMD_INDEX.getValue()}" />
 <c:set var="commCrt" value="${ForwardConst.CMD_CREATE.getValue()}" />
+<c:set var="commAtd" value="${ForwardConst.CMD_ATEND.getValue()}" />
+<c:set var="commLav" value="${ForwardConst.CMD_LEAVE.getValue()}" />
 
 <c:import url="/WEB-INF/views/layout/app.jsp">
     <c:param name="content">

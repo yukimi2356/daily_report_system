@@ -40,6 +40,7 @@ public interface JpaConst {
     String REP_COL_UPDATED_AT = "updated_at";
 
 
+
     String ENTITY_EMP = "employee";
     String ENTITY_REP = "report";
 

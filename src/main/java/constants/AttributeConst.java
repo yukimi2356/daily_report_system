@@ -35,12 +35,15 @@ public enum AttributeConst {
     DEL_FLAG_FALSE(0),
 
     REPORT("report"),
+    ATENDREPORT("atend_report"),
     REPORTS("reports"),
     REP_COUNT("reports_count"),
     REP_ID("id"),
     REP_DATE("report_date"),
     REP_TITLE("title"),
-    REP_CONTENT("content");
+    REP_CONTENT("content"),
+    REP_ATTENDED_AT("attended_at"),
+    REP_LEAVED_AT("leaved_at");
 
     private final String text;
     private final Integer i;

@@ -33,4 +33,8 @@ public class ReportView {
 
     private LocalDateTime updatedAt;
 
+    private String attendedAt;
+
+    private String leavedAt;
+
 }
